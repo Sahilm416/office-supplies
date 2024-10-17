@@ -39,7 +39,7 @@ def make_predictions(model, start_date, end_date):
     return predictions.predicted_mean, predictions.conf_int()
 
 # Streamlit app
-st.title('Furniture Sales Time Series Forecasting')
+st.title('Office supplies Sales Time Series Forecasting')
 
 # Load data
 furniture_df = load_data()
@@ -70,7 +70,7 @@ ax.plot(predictions.index, predictions, label='Forecast', color='red')
 ax.fill_between(conf_int.index, conf_int.iloc[:, 0], conf_int.iloc[:, 1], color='pink', alpha=0.3)
 ax.axvline(train_end_date, color='green', linestyle='--', label='Train/Test Split')
 ax.legend()
-plt.title('Furniture Sales Forecast')
+plt.title('Office supplies Sales Forecast')
 plt.xlabel('Date')
 plt.ylabel('Sales')
 st.pyplot(fig)
@@ -124,6 +124,6 @@ csv = forecast_df.to_csv(index=False)
 st.download_button(
     label="Download Forecast as CSV",
     data=csv,
-    file_name="furniture_sales_forecast.csv",
+    file_name="office_supplies_sales_forecast.csv",
     mime="text/csv"
 )
