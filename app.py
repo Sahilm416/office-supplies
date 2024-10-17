@@ -18,13 +18,13 @@ def load_data():
         st.stop()
     
     data = data[['Order Date', 'Category', 'Sales']]
-    furniture_df = data.loc[data['Category'] == 'Office Supplies']
-    furniture_df = furniture_df[['Order Date', 'Sales']]
-    furniture_df = furniture_df.sort_values('Order Date')
-    furniture_df = furniture_df.groupby('Order Date')['Sales'].sum().reset_index()
-    furniture_df.set_index('Order Date', inplace=True)
-    furniture_df = furniture_df['Sales'].resample('MS').mean()
-    return furniture_df
+    office_supplies_df = data.loc[data['Category'] == 'Office Supplies']
+    office_supplies_df = office_supplies_df[['Order Date', 'Sales']]
+    office_supplies_df = office_supplies_df.sort_values('Order Date')
+    office_supplies_df = office_supplies_df.groupby('Order Date')['Sales'].sum().reset_index()
+    office_supplies_df.set_index('Order Date', inplace=True)
+    office_supplies_df = office_supplies_df['Sales'].resample('MS').mean()
+    return office_supplies_df
 
 # Train SARIMA model
 @st.cache_resource
@@ -39,20 +39,20 @@ def make_predictions(model, start_date, end_date):
     return predictions.predicted_mean, predictions.conf_int()
 
 # Streamlit app
-st.title('Office supplies Sales Time Series Forecasting')
+st.title('Office Supplies Sales Time Series Forecasting')
 
 # Load data
-furniture_df = load_data()
+office_supplies_df = load_data()
 
 # Sidebar
 st.sidebar.header('Options')
-last_date = furniture_df.index[-1]
+last_date = office_supplies_df.index[-1]
 train_end_date = st.sidebar.date_input('Training End Date', value=last_date - pd.DateOffset(months=12), max_value=last_date)
 forecast_months = st.sidebar.slider('Forecast Months', 1, 24, 12)
 
 # Split data
-train_df = furniture_df.loc[:train_end_date]
-test_df = furniture_df.loc[train_end_date + pd.DateOffset(days=1):]
+train_df = office_supplies_df.loc[:train_end_date]
+test_df = office_supplies_df.loc[train_end_date + pd.DateOffset(days=1):]
 
 # Train model
 model = train_sarima_model(train_df)
@@ -65,12 +65,12 @@ predictions, conf_int = make_predictions(model, forecast_start, forecast_end)
 # Plotting
 st.subheader('Sales Over Time')
 fig, ax = plt.subplots(figsize=(12, 6))
-ax.plot(furniture_df.index, furniture_df, label='Actual Sales')
+ax.plot(office_supplies_df.index, office_supplies_df, label='Actual Sales')
 ax.plot(predictions.index, predictions, label='Forecast', color='red')
 ax.fill_between(conf_int.index, conf_int.iloc[:, 0], conf_int.iloc[:, 1], color='pink', alpha=0.3)
 ax.axvline(train_end_date, color='green', linestyle='--', label='Train/Test Split')
 ax.legend()
-plt.title('Office supplies Sales Forecast')
+plt.title('Office Supplies Sales Forecast')
 plt.xlabel('Date')
 plt.ylabel('Sales')
 st.pyplot(fig)
@@ -96,7 +96,7 @@ else:
 
 # Decomposition plot
 st.subheader('Time Series Decomposition')
-decomposition = seasonal_decompose(furniture_df, model='additive', period=12)
+decomposition = seasonal_decompose(office_supplies_df, model='additive', period=12)
 fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(12, 16))
 decomposition.observed.plot(ax=ax1)
 ax1.set_title('Observed')
