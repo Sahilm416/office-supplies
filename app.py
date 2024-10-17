@@ -18,7 +18,7 @@ def load_data():
         st.stop()
     
     data = data[['Order Date', 'Category', 'Sales']]
-    furniture_df = data.loc[data['Category'] == 'Furniture']
+    furniture_df = data.loc[data['Category'] == 'Office Supplies']
     furniture_df = furniture_df[['Order Date', 'Sales']]
     furniture_df = furniture_df.sort_values('Order Date')
     furniture_df = furniture_df.groupby('Order Date')['Sales'].sum().reset_index()
